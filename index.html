@@ -1,34 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="hu">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>n20k | Volumetric Building Management</title>
-    <meta name="description" content="Volumetric Modular Building Management">
-    
-    <link rel="stylesheet" href="css/style.css">
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>n20k</title>
+  <meta name="description" content="n20k" />
+  <link rel="stylesheet" href="./styles.css" />
+    <!-- Google -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-WB36P443');</script>
-    </head>
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-WB36P443');
+    </script>
+    <!-- Google -->
+</head>
+
 <body>
+<!-- Google -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WB36P443"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- Google -->
+  <!-- Ambient canvas layer -->
+  <canvas id="fx" aria-hidden="true"></canvas>
 
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WB36P443"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <canvas id="bg-canvas"></canvas>
-
-    <div class="content">
-        <h1>n20k</h1>
-        <a href="mailto:info@n20k.hu" class="contact-link">info@n20k.hu</a>
+  <header class="topbar">
+    <div class="brand" aria-label="n20k">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text">n20k</span>
     </div>
 
-    <footer>
-        &copy; 2025 n20k. ALL RIGHTS RESERVED.
-    </footer>
+    <a class="chip" href="mailto:info@n20k.hu">info@n20k.hu</a>
+  </header>
 
-    <script src="js/app.js"></script>
+  <main class="wrap">
+    <section class="hero" aria-label="Hero">
+      <div class="hero-card">
+        <div class="kicker">Budapest</div>
+        <h1>
+          n20k
+          <span class="sub">Investment & execution.</span>
+        </h1>
+
+        <p class="lead">
+          Minimal presence. Maximum signal.
+        </p>
+
+        <div class="cta-row">
+          <a class="btn" href="mailto:info@n20k.hu">Contact</a>
+          <button class="btn ghost" id="toggleMotion" type="button">Reduce motion</button>
+        </div>
+
+        <div class="fine">
+          <span class="dot"></span>
+          <span>Mom Park Towers · SAS Building · Csörsz u. 45 · H-1124 Budapest</span>
+        </div>
+      </div>
+
+      <div class="halo" aria-hidden="true"></div>
+      <div class="blob b1" aria-hidden="true"></div>
+      <div class="blob b2" aria-hidden="true"></div>
+      <div class="grid" aria-hidden="true"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-left">© <span id="year"></span> n20k. All rights reserved.</div>
+      <div class="footer-right">
+        <a href="mailto:info@n20k.hu">info@n20k.hu</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./script.js"></script>
 </body>
 </html>
