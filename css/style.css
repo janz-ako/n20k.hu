@@ -1,15 +1,6 @@
-/* =========================================================
-   n20k — Minimal institutional one-pager
-   Safari + Chrome aligned
-   ========================================================= */
-
-/* ---- Color palette ---- */
 :root{
   --p1:#219169;
-  --p2:#1D8263;
   --p3:#4B607A;
-  --p4:#364151;
-
   --bg0:#070A0E;
   --bg1:#0A0F16;
 
@@ -17,12 +8,11 @@
   --muted:rgba(234,242,255,.72);
 
   --stroke:rgba(255,255,255,.12);
-  --shadow:0 28px 80px rgba(0,0,0,.55);
+  --shadow:0 28px 90px rgba(0,0,0,.60);
 
   --radius:22px;
 }
 
-/* ---- Reset ---- */
 *{ box-sizing:border-box; }
 html,body{ height:100%; }
 
@@ -37,16 +27,15 @@ body{
   overflow:hidden;
 }
 
-/* ---- Canvas ---- */
 #fx{
   position:fixed;
   inset:0;
   width:100%;
   height:100%;
   z-index:0;
+  pointer-events:none;
 }
 
-/* ---- Layout ---- */
 .wrap{
   position:relative;
   z-index:2;
@@ -56,7 +45,6 @@ body{
   padding:80px 20px 100px;
 }
 
-/* ---- Hero ---- */
 .hero{
   position:relative;
   width:min(980px,100%);
@@ -64,49 +52,42 @@ body{
   place-items:center;
 }
 
-/* ---- Glass card ---- */
+/* OPAQUE “quiet luxury” card — consistent everywhere */
 .hero-card{
   position:relative;
   width:min(720px,100%);
   padding:36px 34px;
   border-radius:var(--radius);
-
-  /* Safari-safe glass */
-  background:rgba(10,15,22,.78);
   border:1px solid var(--stroke);
   box-shadow:var(--shadow);
-  backdrop-filter:blur(18px) saturate(1.08);
-  -webkit-backdrop-filter:blur(18px) saturate(1.08);
-
   overflow:hidden;
+
+  /* This is the key: no backdrop-filter */
+  background:
+    linear-gradient(135deg,
+      rgba(33,145,105,.20),
+      rgba(75,96,122,.18)
+    ),
+    rgba(10,15,22,.92);
 }
 
-/* subtle internal gradient — very restrained */
+/* very subtle edge glow */
 .hero-card::before{
   content:"";
   position:absolute;
   inset:-2px;
   background:
-    radial-gradient(520px 240px at 18% 10%, rgba(33,145,105,.10), transparent 65%),
-    radial-gradient(520px 240px at 95% 35%, rgba(75,96,122,.10), transparent 65%);
+    radial-gradient(520px 260px at 18% 15%, rgba(33,145,105,.14), transparent 65%),
+    radial-gradient(520px 260px at 92% 35%, rgba(75,96,122,.14), transparent 65%);
   pointer-events:none;
 }
 
-/* extra veil to calm canvas behind card */
-.hero-card::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:rgba(7,10,14,.26);
-  pointer-events:none;
-}
-
-/* ---- Typography ---- */
 h1{
   margin:0 0 8px;
   font-size:clamp(40px,6vw,56px);
   line-height:1.02;
   letter-spacing:-1px;
+  position:relative;
 }
 
 .sub{
@@ -114,76 +95,27 @@ h1{
   margin-top:10px;
   font-size:clamp(14px,2.2vw,18px);
   color:var(--muted);
+  position:relative;
 }
 
 .lead{
   margin:16px 0 20px;
   font-size:15px;
   color:rgba(234,242,255,.78);
+  position:relative;
 }
 
-/* ---- Address ---- */
 .fine{
   margin-top:18px;
   font-size:12px;
   color:rgba(234,242,255,.62);
+  position:relative;
 }
 
-/* ---- Ambient layers ---- */
-.halo{
-  position:absolute;
-  width:760px;
-  height:760px;
-  border-radius:999px;
-  background:
-    radial-gradient(circle at 35% 35%, rgba(33,145,105,.24), transparent 45%),
-    radial-gradient(circle at 65% 45%, rgba(75,96,122,.26), transparent 45%);
-  filter:blur(30px) saturate(1.25);
-  opacity:.6;
-  z-index:-1;
-  animation:floaty 12s ease-in-out infinite;
-}
+/* optional ambience around the card */
+.halo, .blob, .grid{ display:none; }
 
-.blob{
-  position:absolute;
-  z-index:-2;
-  border-radius:999px;
-  filter:blur(32px);
-  opacity:.45;
-}
-
-.blob.b1{
-  width:420px;
-  height:420px;
-  background:radial-gradient(circle, rgba(33,145,105,.9), transparent 65%);
-  left:-120px;
-  top:120px;
-  animation:drift 18s ease-in-out infinite;
-}
-
-.blob.b2{
-  width:520px;
-  height:520px;
-  background:radial-gradient(circle, rgba(75,96,122,.9), transparent 65%);
-  right:-160px;
-  bottom:80px;
-  animation:drift2 22s ease-in-out infinite;
-}
-
-.grid{
-  position:absolute;
-  inset:-60px;
-  z-index:-3;
-  background-image:
-    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
-  background-size:64px 64px;
-  mask-image:radial-gradient(circle at 50% 35%, #000 0%, #000 45%, transparent 75%);
-  opacity:.15;
-  transform:perspective(900px) rotateX(55deg) translateY(-100px);
-}
-
-/* ---- Footer ---- */
+/* Footer */
 .footer{
   position:fixed;
   left:0;
@@ -192,7 +124,6 @@ h1{
   z-index:3;
   padding:14px 20px;
   background:linear-gradient(0deg, rgba(7,10,14,.82), rgba(7,10,14,0));
-  backdrop-filter:blur(10px);
 }
 
 .footer-inner{
@@ -201,59 +132,13 @@ h1{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:12px;
   font-size:12px;
-  color:rgba(234,242,255,.6);
+  color:rgba(234,242,255,.60);
 }
 
 .footer a{
   color:inherit;
   text-decoration:none;
   opacity:.85;
-}
-
-/* ---- Motion ---- */
-@keyframes floaty{
-  0%,100%{ transform:translate(0,0) scale(1); }
-  50%{ transform:translate(12px,-18px) scale(1.02); }
-}
-
-@keyframes drift{
-  0%,100%{ transform:translate(0,0); }
-  50%{ transform:translate(46px,-28px); }
-}
-
-@keyframes drift2{
-  0%,100%{ transform:translate(0,0); }
-  50%{ transform:translate(-42px,24px); }
-}
-
-/* ---- Reduced motion ---- */
-@media (prefers-reduced-motion: reduce){
-  *{
-    animation:none !important;
-    transition:none !important;
-  }
-}
-
-/* =========================================================
-   Safari fallback (no backdrop-filter support)
-   ========================================================= */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  body{
-    background: #111417;
-  }
-
-  .hero-card{
-    background: linear-gradient(
-      135deg,
-      rgba(33,145,105,.35),
-      rgba(75,96,122,.35)
-    );
-    box-shadow: 0 30px 90px rgba(0,0,0,.6);
-  }
-
-  .hero-card::before,
-  .hero-card::after{
-    display:none;
-  }
 }

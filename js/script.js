@@ -1,19 +1,12 @@
-// =========================================================
-// n20k — ambient canvas (autonomous drift, Safari-friendly)
-// No header, no buttons, no mouse-follow.
-// =========================================================
 (() => {
   const canvas = document.getElementById("fx");
   const ctx = canvas.getContext("2d", { alpha: true });
 
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
   const yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
-  // Palette
-  const P1 = [0x21, 0x91, 0x69]; // teal
-  const P3 = [0x4b, 0x60, 0x7a]; // steel blue
+  const P1 = [0x21, 0x91, 0x69];
+  const P3 = [0x4b, 0x60, 0x7a];
 
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
   let w = 0, h = 0;
@@ -31,104 +24,82 @@
   resize();
 
   function rand(a, b) { return a + Math.random() * (b - a); }
-  function rgb(arr, a = 1) { return `rgba(${arr[0]},${arr[1]},${arr[2]},${a})`; }
+  function rgba(rgb, a) { return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`; }
 
-  // Particles (kept moderate; Safari-friendly)
-  const N = 80;
-  const particles = [];
+  // Fewer particles => calmer + Safari-friendly
+  const N = 60;
+  const particles = Array.from({ length: N }, () => ({
+    x: rand(0, w),
+    y: rand(0, h),
+    r: rand(0.8, 2.0),
+    vx: rand(-0.16, 0.16),
+    vy: rand(-0.14, 0.14),
+    col: Math.random() < 0.6 ? P1 : P3,
+    a: rand(0.18, 0.38),
+    p: rand(0.5, 1.0)
+  }));
 
-  function spawn() {
-    const col = Math.random() < 0.6 ? P1 : P3;
-    return {
-      x: rand(0, w),
-      y: rand(0, h),
-      r: rand(0.8, 2.0),
-      vx: rand(-0.18, 0.18),
-      vy: rand(-0.16, 0.16),
-      col,
-      a: rand(0.18, 0.42),
-      p: rand(0.35, 1.0)
-    };
-  }
-
-  for (let i = 0; i < N; i++) particles.push(spawn());
-
-  // Autonomous attractor (replaces mouse)
   const attractor = { x: w * 0.5, y: h * 0.45 };
 
-  function drawBgGlow(time) {
+  function drawGlow(time) {
     const t = time * 0.00018;
-    const gx = w * (0.50 + 0.20 * Math.sin(t));
-    const gy = h * (0.40 + 0.16 * Math.cos(t * 1.07));
+    const gx = w * (0.50 + 0.18 * Math.sin(t));
+    const gy = h * (0.42 + 0.14 * Math.cos(t * 1.08));
 
-    const g = ctx.createRadialGradient(gx, gy, 0, gx, gy, Math.max(w, h) * 0.75);
-    g.addColorStop(0, rgb(P1, 0.10));
-    g.addColorStop(0.35, rgb(P3, 0.09));
+    const g = ctx.createRadialGradient(gx, gy, 0, gx, gy, Math.max(w, h) * 0.78);
+    g.addColorStop(0, rgba(P1, 0.10));
+    g.addColorStop(0.35, rgba(P3, 0.09));
     g.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
   }
 
   function tick(time) {
-    // SAFARI: hard clear first to avoid seam artifacts
+    // Clean redraw every frame (no trails) => Safari stable
     ctx.clearRect(0, 0, w, h);
-
-    // Soft trail (still clean in Safari)
-  ctx.fillStyle = isSafari
-  ? "rgba(7,10,14,1)"   // no trails, clean redraw
-  : "rgba(7,10,14,0.22)";
+    ctx.fillStyle = "rgba(7,10,14,1)";
     ctx.fillRect(0, 0, w, h);
 
-    // Autonomous drift target
     const tt = time * 0.00018;
     attractor.x = w * (0.50 + 0.18 * Math.sin(tt));
     attractor.y = h * (0.42 + 0.14 * Math.cos(tt * 1.10));
 
-    drawBgGlow(time);
+    drawGlow(time);
 
-    // Particle motion
-    const pull = 0.00055;
+    const pull = 0.00050;
 
-    for (let i = 0; i < particles.length; i++) {
-      const p = particles[i];
-
-      // Base drift
+    for (const p of particles) {
       p.x += p.vx;
       p.y += p.vy;
 
-      // Gentle attraction (subtle)
       const dx = attractor.x - p.x;
       const dy = attractor.y - p.y;
       p.vx += dx * pull * p.p;
       p.vy += dy * pull * p.p;
 
-      // Damp velocity
-      p.vx *= 0.986;
-      p.vy *= 0.986;
+      p.vx *= 0.985;
+      p.vy *= 0.985;
 
-      // Wrap edges
       if (p.x < -20) p.x = w + 20;
       if (p.x > w + 20) p.x = -20;
       if (p.y < -20) p.y = h + 20;
       if (p.y > h + 20) p.y = -20;
 
-      // Draw particle
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = rgb(p.col, p.a);
+      ctx.fillStyle = rgba(p.col, p.a);
       ctx.fill();
     }
 
-    // Connect nearby particles (very restrained)
+    // Very subtle links
+    const maxD = 130;
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
         const a = particles[i], b = particles[j];
         const dx = a.x - b.x, dy = a.y - b.y;
         const d2 = dx * dx + dy * dy;
-
-        const maxD = 140;
         if (d2 < maxD * maxD) {
-          const alpha = 0.055 * (1 - d2 / (maxD * maxD));
+          const alpha = 0.045 * (1 - d2 / (maxD * maxD));
           ctx.strokeStyle = `rgba(234,242,255,${alpha})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
