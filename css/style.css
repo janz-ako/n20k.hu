@@ -142,3 +142,8 @@ h1{
   text-decoration:none;
   opacity:.85;
 }
+
+/* Locked headline color */
+.headline{
+  color: #219169; /* brand green */
+}
