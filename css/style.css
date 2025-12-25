@@ -234,3 +234,26 @@ h1{
     transition:none !important;
   }
 }
+
+/* =========================================================
+   Safari fallback (no backdrop-filter support)
+   ========================================================= */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  body{
+    background: #111417;
+  }
+
+  .hero-card{
+    background: linear-gradient(
+      135deg,
+      rgba(33,145,105,.35),
+      rgba(75,96,122,.35)
+    );
+    box-shadow: 0 30px 90px rgba(0,0,0,.6);
+  }
+
+  .hero-card::before,
+  .hero-card::after{
+    display:none;
+  }
+}

@@ -6,6 +6,8 @@
   const canvas = document.getElementById("fx");
   const ctx = canvas.getContext("2d", { alpha: true });
 
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
   const yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
@@ -72,7 +74,9 @@
     ctx.clearRect(0, 0, w, h);
 
     // Soft trail (still clean in Safari)
-    ctx.fillStyle = "rgba(7,10,14,0.22)";
+  ctx.fillStyle = isSafari
+  ? "rgba(7,10,14,1)"   // no trails, clean redraw
+  : "rgba(7,10,14,0.22)";
     ctx.fillRect(0, 0, w, h);
 
     // Autonomous drift target
