@@ -147,3 +147,26 @@ h1{
 h1, .headline{
   color:#EAF2FF !important;
 }
+
+/* --- Brand hierarchy --- */
+
+.brand{
+  margin:0;
+  font-size:clamp(44px, 7vw, 64px);
+  line-height:1;
+  letter-spacing:-1px;
+  color:#EAF2FF;           /* solid white, browser-proof */
+}
+
+.tagline{
+  margin-top:8px;
+  font-size:clamp(16px, 2.4vw, 20px);
+  font-weight:500;
+  color:rgba(234,242,255,.80);
+}
+
+.lead{
+  margin-top:16px;
+  font-size:14px;
+  color:rgba(234,242,255,.70);
+}
