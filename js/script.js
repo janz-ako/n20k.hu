@@ -1,6 +1,9 @@
+  console.log("n20k script loaded v20251225-3");
+  
 (() => {
   const canvas = document.getElementById("fx");
   const ctx = canvas.getContext("2d", { alpha: true });
+
 
   const yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());

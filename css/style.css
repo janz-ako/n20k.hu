@@ -143,8 +143,7 @@ h1{
   opacity:.85;
 }
 
-/* headline back to white */
-.headline{
-  color: #EAF2FF;
-  text-shadow: none;
+/* FORCE WHITE headline (Safari + Chrome) */
+h1, .headline{
+  color:#EAF2FF !important;
 }
