@@ -32,8 +32,8 @@
   function resize() {
     w = Math.floor(window.innerWidth);
     h = Math.floor(window.innerHeight);
-    canvas.width = Math.floor(w * DPR);
-    canvas.height = Math.floor(h * DPR);
+    canvas.width = Math.ceil(w * DPR);
+    canvas.height = Math.ceil(h * DPR);
     canvas.style.width = w + "px";
     canvas.style.height = h + "px";
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -96,7 +96,9 @@
   function tick(time) {
     // Clear with slight trail for "premium" motion
     ctx.fillStyle = reduceMotion ? "rgba(7,10,14,0.55)" : "rgba(7,10,14,0.18)";
-    ctx.fillRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillRect(0, 0, w, h); 
+
 
     drawBgGlow(time);
 

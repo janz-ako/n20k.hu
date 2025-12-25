@@ -90,10 +90,10 @@ a:hover{ text-decoration: underline; text-underline-offset: 4px; }
 .wrap{
   position:relative;
   z-index:2;
-  min-height:100vh;
+  min-height: calc(100vh - 64px); /* account for footer padding */
   display:grid;
   place-items:center;
-  padding:120px 18px 90px;
+  padding: 96px 18px 88px; /* less top padding so hero stays centered */
 }
 
 .hero{
@@ -144,16 +144,18 @@ a:hover{ text-decoration: underline; text-underline-offset: 4px; }
   opacity:.9;
 }
 
+/* Responsive headline so it never blows up/crops */
 h1{
   position:relative;
   margin:14px 0 10px;
-  font-size:56px;
-  line-height:1.03;
-  letter-spacing:-1px;
+  font-size: clamp(38px, 6vw, 56px);
+  line-height: 1.03;
+  letter-spacing: -1px;
 }
+
 .sub{
   display:block;
-  font-size:18px;
+  font-size: clamp(14px, 2.2vw, 18px);
   margin-top:10px;
   color: var(--muted);
   letter-spacing:.2px;
