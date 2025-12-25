@@ -1,81 +1,91 @@
-document.addEventListener('DOMContentLoaded', () => {
-    
-    const grid = document.getElementById('grid');
-    const modules = [];
-    
-    // 1. Calculate how many dots fit on the screen
-    // We want a dense grid for the "scanner" look
-    const dotSize = 25; // Size + gap
-    const cols = Math.floor(window.innerWidth / dotSize);
-    const rows = Math.floor(window.innerHeight / dotSize);
-    const totalDots = cols * rows;
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
 
-    // 2. Create the Grid
-    for (let i = 0; i < totalDots; i++) {
-        const div = document.createElement('div');
-        div.classList.add('module');
-        grid.appendChild(div);
-        modules.push(div);
+let width, height;
+let particles = [];
+
+// Configuration
+const spacing = 45; // Space between dots (Increase this number for fewer dots)
+const mouse = { x: -1000, y: -1000 }; // Start mouse off-screen so it doesn't trigger initially
+
+// Resize Canvas to Full Screen
+function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    initParticles();
+}
+
+// Create the grid of dots
+function initParticles() {
+    particles = [];
+    // Loop through the screen width/height to place dots
+    for (let x = 0; x < width; x += spacing) {
+        for (let y = 0; y < height; y += spacing) {
+            particles.push({
+                x: x + spacing / 2, // Center the dot in its cell
+                y: y + spacing / 2,
+                baseRadius: 1.5,    // Default tiny size
+                color: 'rgba(255, 255, 255, 0.1)' // Faint grey (un-active state)
+            });
+        }
     }
+}
 
-    // 3. The "Ripple" Function
-    function animateGrid(x, y) {
-        modules.forEach((mod) => {
-            const rect = mod.getBoundingClientRect();
+// Animation Loop (Runs 60 times per second)
+function animate() {
+    ctx.clearRect(0, 0, width, height); // Clear screen for next frame
+
+    particles.forEach(p => {
+        // Calculate distance from this dot to the mouse
+        const dx = mouse.x - p.x;
+        const dy = mouse.y - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        // Interaction Zone (300px radius around mouse)
+        const maxDist = 300;
+        
+        if (dist < maxDist) {
+            // Calculate intensity (0 to 1) based on closeness
+            const force = (maxDist - dist) / maxDist;
             
-            // Calculate center of the dot
-            const modX = rect.left + rect.width / 2;
-            const modY = rect.top + rect.height / 2;
+            // Draw Active Dot (Green & Larger)
+            const radius = p.baseRadius + (force * 3); // Grows up to 4.5px
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
             
-            // Calculate distance from mouse to dot
-            const distX = x - modX;
-            const distY = y - modY;
-            const distance = Math.sqrt(distX * distX + distY * distY);
-            
-            // The magic zone: effects happen within 300px of the mouse
-            const maxDist = 300; 
-
-            if (distance < maxDist) {
-                // Calculate intensity (0 to 1)
-                const intensity = 1 - (distance / maxDist);
-                
-                // Scale up and turn green based on proximity
-                const scale = 1 + (intensity * 1.5); // Grow up to 2.5x
-                const greenValue = Math.floor(intensity * 155); // 0 to 155
-                
-                mod.style.transform = `scale(${scale})`;
-                mod.style.backgroundColor = `rgba(0, 155, 119, ${intensity})`; // n20k Green glow
-                mod.style.boxShadow = `0 0 ${intensity * 10}px var(--n20k-green)`;
-            } else {
-                // Reset if far away
-                mod.style.transform = 'scale(1)';
-                mod.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                mod.style.boxShadow = 'none';
-            }
-        });
-    }
-
-    // 4. Listeners
-    document.addEventListener('mousemove', (e) => {
-        // Use RequestAnimationFrame for smooth performance
-        requestAnimationFrame(() => {
-            animateGrid(e.clientX, e.clientY);
-        });
-    });
-
-    // Mobile touch
-    document.addEventListener('touchmove', (e) => {
-        if(e.touches.length > 0) {
-            animateGrid(e.touches[0].clientX, e.touches[0].clientY);
+            // Dynamic Green color: Fades out as you get further away
+            ctx.fillStyle = `rgba(0, 155, 119, ${force})`; 
+            ctx.fill();
+        } else {
+            // Draw Idle Dot (Grey & Small)
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.baseRadius, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.fill();
         }
     });
 
-    // Auto-wave (optional: gives life even without mouse movement)
-    let time = 0;
-    /* Uncomment below if you want an automatic idle animation
-    setInterval(() => {
-        time += 0.05;
-        // Simple circular motion for idle state if needed
-    }, 50);
-    */
+    requestAnimationFrame(animate);
+}
+
+// Event Listeners
+window.addEventListener('resize', resize);
+
+window.addEventListener('mousemove', (e) => {
+    mouse.x = e.x;
+    mouse.y = e.y;
 });
+
+// Touch support for Mobile
+window.addEventListener('touchmove', (e) => {
+    if(e.touches.length > 0) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+    }
+});
+
+// Start the engine
+resize();
+animate();

@@ -1,6 +1,7 @@
 :root {
     --n20k-green: #009B77; 
-    --dark-bg: #111111; /* Darker for better contrast */
+    /* Lighter charcoal background */
+    --dark-bg: #2d2d2d; 
     --text-color: #ffffff;
 }
 
@@ -15,46 +16,31 @@ body {
     color: var(--text-color);
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     height: 100vh;
-    overflow: hidden;
+    overflow: hidden; /* Prevents scrolling */
+    position: relative;
+    /* Center content using Flexbox */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: relative;
 }
 
-/* --- The Digital Grid --- */
-.grid-container {
+/* --- The Canvas (Background) --- */
+canvas#bg-canvas {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100vw;
-    height: 100vh;
-    z-index: 1;
-    
-    /* We will use flex/grid in JS, but let's set a container style */
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-content: center;
-    gap: 4px; /* Tight spacing for a blueprint look */
-    overflow: hidden;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Behind the text */
 }
 
-.module {
-    width: 20px;
-    height: 20px;
-    background-color: rgba(255, 255, 255, 0.05); /* Very faint by default */
-    border-radius: 2px;
-    transition: background-color 0.2s, transform 0.2s;
-}
-
-/* --- Content --- */
+/* --- Content (Foreground) --- */
 .content {
-    z-index: 10;
+    z-index: 10; /* Above the canvas */
     text-align: center;
-    pointer-events: none; /* Let mouse pass through text to the grid */
+    /* Allows mouse to pass through the empty space around text so animation works */
+    pointer-events: none; 
 }
 
 h1 {
@@ -63,13 +49,16 @@ h1 {
     letter-spacing: -4px;
     line-height: 1;
     margin-bottom: 30px;
+    
+    /* Gradient text effect */
     background: linear-gradient(45deg, #fff, #b3b3b3);
     -webkit-background-clip: text;
-    background-clip: text;
+    background-clip: text; 
     -webkit-text-fill-color: transparent;
+    
     opacity: 0;
     animation: buildUp 1s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.5s;
-    pointer-events: auto;
+    pointer-events: auto; /* Re-enable selection on the text itself */
 }
 
 .contact-link {
@@ -79,25 +68,31 @@ h1 {
     border: 1px solid var(--n20k-green);
     padding: 15px 40px;
     border-radius: 50px;
-    background: rgba(0, 20, 15, 0.8); /* Slight dark backing */
+    
+    /* Semi-transparent background with blur for modern glass effect */
+    background: rgba(45, 45, 45, 0.8); 
+    backdrop-filter: blur(5px);
+    
     transition: all 0.3s ease;
     display: inline-block;
     opacity: 0;
     animation: buildUp 1s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.8s;
-    pointer-events: auto;
+    pointer-events: auto; /* Re-enable clicking on the button */
 }
 
 .contact-link:hover {
     background-color: var(--n20k-green);
-    color: var(--dark-bg);
-    box-shadow: 0 0 30px var(--n20k-green); /* Glowing button */
+    color: #fff;
+    box-shadow: 0 0 20px rgba(0, 155, 119, 0.6);
+    cursor: pointer;
+    transform: translateY(-2px);
 }
 
 footer {
     position: absolute;
     bottom: 30px;
     font-size: 0.7rem;
-    color: #666;
+    color: #888;
     z-index: 10;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -105,15 +100,18 @@ footer {
     animation: fadeIn 1s ease forwards 1.2s;
 }
 
+/* Animations */
 @keyframes buildUp {
     from { transform: translateY(50px) scale(0.9); opacity: 0; }
     to { transform: translateY(0) scale(1); opacity: 1; }
 }
+
 @keyframes fadeIn {
     to { opacity: 1; }
 }
 
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
     h1 { font-size: 5rem; }
-    .module { width: 15px; height: 15px; } /* Smaller dots for mobile */
+    .contact-link { padding: 12px 30px; font-size: 1.2rem; }
 }
