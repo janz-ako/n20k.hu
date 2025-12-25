@@ -5,9 +5,6 @@
   const yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
-  const P1 = [0x21, 0x91, 0x69];
-  const P3 = [0x4b, 0x60, 0x7a];
-
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
   let w = 0, h = 0;
 
@@ -23,92 +20,79 @@
   window.addEventListener("resize", resize, { passive: true });
   resize();
 
-  function rand(a, b) { return a + Math.random() * (b - a); }
-  function rgba(rgb, a) { return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`; }
+  // Brand-ish tones
+  const c1 = [0x21, 0x91, 0x69]; // green
+  const c2 = [0x4b, 0x60, 0x7a]; // blue
+  const c3 = [0x0a, 0x0f, 0x16]; // deep bg
 
-  // Fewer particles => calmer + Safari-friendly
-  const N = 60;
-  const particles = Array.from({ length: N }, () => ({
-    x: rand(0, w),
-    y: rand(0, h),
-    r: rand(0.8, 2.0),
-    vx: rand(-0.16, 0.16),
-    vy: rand(-0.14, 0.14),
-    col: Math.random() < 0.6 ? P1 : P3,
-    a: rand(0.18, 0.38),
-    p: rand(0.5, 1.0)
-  }));
+  function rgba([r,g,b], a){ return `rgba(${r},${g},${b},${a})`; }
 
-  const attractor = { x: w * 0.5, y: h * 0.45 };
+  // Simple hash noise (fast, no libs)
+  function hash(n){
+    n = (n << 13) ^ n;
+    return 1.0 - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0;
+  }
 
-  function drawGlow(time) {
-    const t = time * 0.00018;
-    const gx = w * (0.50 + 0.18 * Math.sin(t));
-    const gy = h * (0.42 + 0.14 * Math.cos(t * 1.08));
+  function grain(time){
+    // very subtle film grain
+    const step = 90; // bigger = cheaper
+    ctx.globalAlpha = 0.035;
+    for (let y = 0; y < h; y += step){
+      for (let x = 0; x < w; x += step){
+        const n = hash((x + y * 131) + (time|0));
+        const a = (n * 0.5 + 0.5);
+        ctx.fillStyle = `rgba(255,255,255,${a})`;
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
 
-    const g = ctx.createRadialGradient(gx, gy, 0, gx, gy, Math.max(w, h) * 0.78);
-    g.addColorStop(0, rgba(P1, 0.10));
-    g.addColorStop(0.35, rgba(P3, 0.09));
+  function auroraBlob(x, y, r, col, a){
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, rgba(col, a));
+    g.addColorStop(0.55, rgba(col, a * 0.35));
     g.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
   }
 
-  function tick(time) {
-    // Clean redraw every frame (no trails) => Safari stable
+  function tick(t){
+    // Clean redraw (Safari stable)
     ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = "rgba(7,10,14,1)";
+
+    // Base
+    ctx.fillStyle = rgba(c3, 1);
     ctx.fillRect(0, 0, w, h);
 
-    const tt = time * 0.00018;
-    attractor.x = w * (0.50 + 0.18 * Math.sin(tt));
-    attractor.y = h * (0.42 + 0.14 * Math.cos(tt * 1.10));
+    // Slow drifting aurora (no pointer)
+    const time = t * 0.00012;
 
-    drawGlow(time);
+    const x1 = w * (0.32 + 0.12 * Math.sin(time * 1.1));
+    const y1 = h * (0.38 + 0.10 * Math.cos(time * 1.3));
+    const r1 = Math.max(w, h) * (0.75 + 0.08 * Math.sin(time * 0.9));
 
-    const pull = 0.00050;
+    const x2 = w * (0.70 + 0.10 * Math.cos(time * 1.0));
+    const y2 = h * (0.45 + 0.10 * Math.sin(time * 1.2));
+    const r2 = Math.max(w, h) * (0.70 + 0.06 * Math.cos(time * 1.1));
 
-    for (const p of particles) {
-      p.x += p.vx;
-      p.y += p.vy;
+    const x3 = w * (0.55 + 0.08 * Math.sin(time * 0.8));
+    const y3 = h * (0.80 + 0.07 * Math.cos(time * 0.95));
+    const r3 = Math.max(w, h) * (0.65 + 0.05 * Math.sin(time * 0.7));
 
-      const dx = attractor.x - p.x;
-      const dy = attractor.y - p.y;
-      p.vx += dx * pull * p.p;
-      p.vy += dy * pull * p.p;
+    // Paint blobs
+    auroraBlob(x1, y1, r1, c1, 0.18);
+    auroraBlob(x2, y2, r2, c2, 0.20);
+    auroraBlob(x3, y3, r3, c1, 0.10);
 
-      p.vx *= 0.985;
-      p.vy *= 0.985;
+    // Vignette
+    const vg = ctx.createRadialGradient(w*0.5, h*0.55, 0, w*0.5, h*0.55, Math.max(w,h)*0.9);
+    vg.addColorStop(0, "rgba(0,0,0,0)");
+    vg.addColorStop(1, "rgba(0,0,0,0.55)");
+    ctx.fillStyle = vg;
+    ctx.fillRect(0,0,w,h);
 
-      if (p.x < -20) p.x = w + 20;
-      if (p.x > w + 20) p.x = -20;
-      if (p.y < -20) p.y = h + 20;
-      if (p.y > h + 20) p.y = -20;
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = rgba(p.col, p.a);
-      ctx.fill();
-    }
-
-    // Very subtle links
-    const maxD = 130;
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const a = particles[i], b = particles[j];
-        const dx = a.x - b.x, dy = a.y - b.y;
-        const d2 = dx * dx + dy * dy;
-        if (d2 < maxD * maxD) {
-          const alpha = 0.045 * (1 - d2 / (maxD * maxD));
-          ctx.strokeStyle = `rgba(234,242,255,${alpha})`;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
-          ctx.stroke();
-        }
-      }
-    }
+    grain(t);
 
     requestAnimationFrame(tick);
   }

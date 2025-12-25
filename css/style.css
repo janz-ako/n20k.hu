@@ -143,7 +143,8 @@ h1{
   opacity:.85;
 }
 
-/* Locked headline color */
+/* headline back to white */
 .headline{
-  color: #219169; /* brand green */
+  color: #EAF2FF;
+  text-shadow: none;
 }
